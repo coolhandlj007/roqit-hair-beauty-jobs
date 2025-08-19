@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ROQIT — Hair & Beauty Jobs</title>
+  <meta name="description" content="Find and post barber, hair, and beauty jobs across the UK. Free to start." />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    /* --- Base / tokens --- */
+    :root{
+      --brand:#0f5f3e;
+      --brand-dark:#0a4d32;
+      --bg:#f9fafb; --text:#111827; --muted:#6b7280; --line:#e5e7eb;
+      --card:#fff; --radius:12px;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+    .container{max-width:1280px;margin:0 auto;padding:0 24px}
+
+    /* --- Header --- */
+    .header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--line)}
+    .header-content{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+    .logo-icon{width:40px;height:40px;background:var(--brand);border-radius:8px;display:grid;place-items:center;color:#fff}
+    .logo-text{font-size:22px;font-weight:800;letter-spacing:.2px}
+    .nav{display:flex;align-items:center;gap:12px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border-radius:8px;border:1px solid transparent;padding:10px 14px;font-weight:600;cursor:pointer;text-decoration:none}
+    .btn-primary{background:var(--brand);color:#fff}
+    .btn-primary:hover{background:var(--brand-dark)}
+    .btn-ghost{background:transparent;color:var(--muted)}
+    .btn-ghost:hover{color:var(--text)}
+    .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;border:0;padding:0;margin:-1px}
+
+    /* --- Search bar --- */
+    .search-section{background:var(--bg);padding:20px 0}
+    .search-container{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center}
+    .input-wrap{position:relative;flex:1;min-width:260px;max-width:560px}
+    .search-input{width:100%;padding:12px 12px 12px 44px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:16px;outline:none}
+    .search-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 20%, transparent)}
+    .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#9ca3af}
+
+    /* --- Layout --- */
+    .main{padding:24px 0}
+    .head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .title{font-size:24px;font-weight:700}
+    .btn-map{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:var(--muted);cursor:pointer}
+    .btn-map:hover{color:var(--text)}
+    .layout{display:flex;gap:24px}
+
+    /* --- Sidebar --- */
+    .sidebar{width:320px;flex-shrink:0}
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;position:sticky;top:88px}
+    .group{margin-bottom:16px}
+    .label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+    .field,.select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;background:#fff;font-size:14px;outline:none}
+    .field:focus,.select:focus{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 20%, transparent)}
+    .row{display:flex;gap:8px}
+    .btn-search{width:100%;margin-top:6px}
+
+    /* --- Grid / Cards --- */
+    .grid{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+    .job{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:box-shadow .2s}
+    .job:hover{box-shadow:0 10px 15px -3px rgba(0,0,0,.1)}
+    .job img{width:100%;height:192px;object-fit:cover;display:block}
+    .job-body{padding:16px}
+    .job-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+    .job-title{font-size:18px;font-weight:700;margin:0}
+    .job-company{font-size:15px;color:#374151;margin:2px 0 0}
+    .badges{display:flex;flex-direction:column;gap:4px}
+    .badge{display:inline-block;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:700}
+    .urgent{background:#fef3c7;color:#b45309}
+    .new{background:#dbeafe;color:#1d4ed8}
+    .meta{display:flex;align-items:center;gap:16px;margin:10px 0 12px;font-size:14px;color:var(--muted)}
+    .salary{color:var(--text);font-weight:700}
+    .tags{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+    .tag{background:#d1f7c4;color:var(--brand);padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}
+    .job-actions{display:flex;gap:8px}
+    .link{flex:1;text-align:center}
+
+    /* --- Responsive --- */
+    @media (max-width:1024px){
+      .layout{flex-direction:column}
+      .sidebar{width:100%}.card{position:static}
+    }
+    @media (max-width:768px){
+      .container{padding:0 16px}
+      .header-content{height:56px}
+      .logo-text{font-size:20px}
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a class="logo" href="/" aria-label="Roqit home">
+          <span class="logo-icon"><i class="fas fa-rocket"></i></span>
+          <span class="logo-text">Roqit</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a class="btn btn-primary" href="/post-job"><i class="fas fa-plus"></i><span>Post Job</span></a>
+          <a class="btn btn-ghost" href="/signin" aria-label="Sign in"><i class="fas fa-user"></i></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search -->
+  <section class="search-section">
+    <div class="container">
+      <form class="search-container" id="searchForm" role="search" aria-label="Search jobs">
+        <label class="sr-only" for="q">Search jobs</label>
+        <div class="input-wrap">
+          <i class="fas fa-search search-icon" aria-hidden="true"></i>
+          <input id="q" name="q" type="search" class="search-input" placeholder="Search jobs (e.g. Senior Barber, Shoreditch)" autocomplete="off" />
+        </div>
+        <button class="btn btn-primary" type="submit" aria-label="Apply filters"><i class="fas fa-filter"></i><span>Apply</span></button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="container">
+      <div class="head">
+        <h1 class="title">Featured Jobs</h1>
+        <a class="btn-map" href="/map"><i class="fas fa-map-marker-alt"></i><span>Map</span></a>
+      </div>
+
+      <div class="layout">
+        <!-- Filters -->
+        <aside class="sidebar" aria-label="Filters">
+          <form class="card" id="filterForm">
+            <div class="group">
+              <label class="label" for="f-role">Role</label>
+              <select id="f-role" name="role" class="select">
+                <option value="">Any role</option>
+                <option>Senior Barber</option>
+                <option>Hair Stylist</option>
+                <option>Beauty Therapist</option>
+                <option>Stylist</option>
+              </select>
+            </div>
+
+            <div class="group">
+              <label class="label" for="f-location">Location</label>
+              <select id="f-location" name="location" class="select">
+                <option value="">Any location</option>
+                <option>Manchester</option>
+                <option>Birmingham</option>
+                <option>London</option>
+                <option>Liverpool</option>
+              </select>
+            </div>
+
+            <div class="group">
+              <label class="label">Pay range (GBP)</label>
+              <div class="row">
+                <label class="sr-only" for="minPay">Min pay</label>
+                <input id="minPay" name="minPay" type="number" class="field" placeholder="0" min="0" />
+                <span aria-hidden="true" style="align-self:center">–</span>
+                <label class="sr-only" for="maxPay">Max pay</label>
+                <input id="maxPay" name="maxPay" type="number" class="field" placeholder="100000" min="0" />
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="label" for="f-type">Type</label>
+              <select id="f-type" name="type" class="select">
+                <option value="">Any</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Contract">Contract</option>
+                <option value="Freelance">Freelance</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-search"><i class="fas fa-search"></i><span>Search</span></button>
+          </form>
+        </aside>
+
+        <!-- Jobs grid -->
+        <section class="grid" id="jobs" aria-live="polite">
+          <!-- Cards render from JS using the mock array below -->
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- JSON-LD (SEO) -->
+  <script type="application/ld+json" id="ldJobs"></script>
+
+  <script>
+    // --- Mock data (swap this for a fetch to your API) ---
+    const JOBS = [
+      {
+        id:"senior-barber-cutting-edge-manchester",
+        title:"Senior Barber",
+        company:"Cutting Edge",
+        city:"Manchester",
+        salaryMin:30000, salaryMax:32000,
+        type:"Full-time",
+        tags:["High footfall"],
+        urgent:true, isNew:false,
+        image:"https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=480&fit=crop&auto=format",
+      },
+      {
+        id:"hair-stylist-style-lounge-birmingham",
+        title:"Hair Stylist",
+        company:"The Style Lounge",
+        city:"Birmingham",
+        salaryMin:26000, salaryMax:28000,
+        type:"Part-time",
+        tags:["Colour", "Balayage"],
+        urgent:true, isNew:false,
+        image:"https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&h=480&fit=crop&auto=format",
+      },
+      {
+        id:"beauty-therapist-bliss-beauty-london",
+        title:"Beauty Therapist",
+        company:"Bliss Beauty",
+        city:"London",
+        salaryMin:34000, salaryMax:38000,
+        type:"Full-time",
+        tags:["Training provided"],
+        urgent:false, isNew:false,
+        image:"https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800&h=480&fit=crop&auto=format",
+      },
+      {
+        id:"stylist-hair-affair-liverpool",
+        title:"Stylist",
+        company:"Hair Affair",
+        city:"Liverpool",
+        salaryMin:24000, salaryMax:28000,
+        type:"Part-time",
+        tags:["Retail bonus"],
+        urgent:false, isNew:true,
+        image:"https://images.unsplash.com/photo-1559599101-f09722fb4948?w=800&h=480&fit=crop&auto=format",
+      },
+    ];
+
+    // --- Utilities ---
+    const £ = v => new Intl.NumberFormat('en-GB', { style:'currency', currency:'GBP', maximumFractionDigits:0 }).format(v);
+
+    function jobCard(j){
+      const badges = [
+        j.urgent ? '<span class="badge urgent">URGENT</span>' : '',
+        j.isNew ? '<span class="badge new">NEW</span>' : ''
+      ].join('');
+      const tags = j.tags.map(t=>`<span class="tag">${t}</span>`).join('');
+      return `
+        <article class="job" data-title="${j.title}" data-company="${j.company}" data-city="${j.city}" data-type="${j.type}" data-min="${j.salaryMin}" data-max="${j.salaryMax}">
+          <a href="/jobs/${j.id}" aria-label="${j.title} at ${j.company}">
+            <img src="${j.image}" loading="lazy" alt="${j.company} job image">
+          </a>
+          <div class="job-body">
+            <div class="job-head">
+              <div>
+                <h3 class="job-title"><a class="link" href="/jobs/${j.id}">${j.title}</a></h3>
+                <p class="job-company">${j.company}</p>
+              </div>
+              <div class="badges">${badges}</div>
+            </div>
+            <div class="meta">
+              <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i> <span>${j.city}</span></div>
+              <div class="salary">${£(j.salaryMin)} – ${£(j.salaryMax)}</div>
+            </div>
+            <div class="tags">${tags}</div>
+            <div class="job-actions">
+              <a class="btn btn-primary link" href="/jobs/${j.id}">View</a>
+              <a class="btn btn-ghost link" href="/apply/${j.id}" aria-label="Apply for ${j.title}">Apply</a>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function render(list){
+      document.getElementById('jobs').innerHTML = list.map(jobCard).join('');
+      // JSON-LD for SEO (simplified per item)
+      const items = list.map(j => ({
+        "@context":"https://schema.org",
+        "@type":"JobPosting",
+        "title": j.title,
+        "hiringOrganization": { "@type":"Organization", "name": j.company },
+        "employmentType": j.type,
+        "jobLocation": { "@type":"Place", "address": { "@type":"PostalAddress", "addressLocality": j.city, "addressCountry":"GB" } },
+        "baseSalary": { "@type":"MonetaryAmount", "currency":"GBP", "value": { "@type":"QuantitativeValue", "minValue": j.salaryMin, "maxValue": j.salaryMax, "unitText":"YEAR" } },
+        "applicantLocationRequirements": { "@type":"Country","name":"United Kingdom"}
+      }));
+      document.getElementById('ldJobs').textContent = JSON.stringify(items);
+    }
+
+    // --- Filtering / Search ---
+    function applyFilters(e){
+      e?.preventDefault();
+      const q = (document.getElementById('q').value || '').toLowerCase().trim();
+      const role = document.getElementById('f-role').value;
+      const loc  = document.getElementById('f-location').value;
+      const type = document.getElementById('f-type').value;
+      const min  = parseInt(document.getElementById('minPay').value || '0', 10);
+      const max  = parseInt(document.getElementById('maxPay').value || '9999999', 10);
+
+      const out = JOBS.filter(j=>{
+        const hay = (j.title+' '+j.company+' '+j.city+' '+j.tags.join(' ')).toLowerCase();
+        const matchesQ = !q || hay.includes(q);
+        const matchesRole = !role || j.title === role;
+        const matchesLoc  = !loc || j.city === loc;
+        const matchesType = !type || j.type === type;
+        const matchesPay  = (j.salaryMin >= min) && (j.salaryMax <= max);
+        return matchesQ && matchesRole && matchesLoc && matchesType && matchesPay;
+      });
+      render(out);
+    }
+
+    document.getElementById('searchForm').addEventListener('submit', applyFilters);
+    document.getElementById('filterForm').addEventListener('submit', applyFilters);
+    document.getElementById('q').addEventListener('input', ()=>applyFilters());
+
+    // Initial render
+    render(JOBS);
+  </script>
+</body>
+</html>
